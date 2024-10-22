@@ -127,7 +127,7 @@ const ProviderDrawer: React.FC<ProviderDrawerProps> = ({ isOpen, onClose }) => {
           ) : (
             <ProviderListContainer>
               {providers.map((provider) => (
-                <ProviderAccordion key={provider} provider={provider} />
+                <ProviderAccordion key={provider} provider={provider} onClose={onClose} />
               ))}
             </ProviderListContainer>
           )}

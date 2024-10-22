@@ -62,6 +62,7 @@ const ErrorText = styled.p`
 
 interface ProviderAccordionProps {
   provider: string;
+  onClose: () => void;
 }
 
 interface API {
@@ -82,7 +83,7 @@ const mapApiResponse = (apiData: Record<string, any>): API[] => {
 };
 
 const ProviderAccordion: React.FC<ProviderAccordionProps> = React.memo(
-  ({ provider }) => {
+  ({ provider, onClose }) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [apis, setApis] = useState<API[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -118,6 +119,7 @@ const ProviderAccordion: React.FC<ProviderAccordionProps> = React.memo(
         } else {
           navigate(`/api/${providerName}`);
         }
+        onClose();
       },
       [navigate]
     );

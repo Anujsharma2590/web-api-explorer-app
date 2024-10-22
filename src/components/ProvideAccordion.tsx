@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const AccordionContainer = styled.div<{ isExpanded: boolean }>`
   background-color: ${({ isExpanded }) =>
-  isExpanded ? "#131924" : "transparent"};
+    isExpanded ? "#131924" : "transparent"};
   border-radius: ${({ isExpanded }) => (isExpanded ? "8px" : "0")};
 `;
 
@@ -15,11 +15,17 @@ const AccordionHeader = styled.div<{ isExpanded: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  background-color: ${({ isExpanded }) =>
+    isExpanded ? "#1e2a38" : "transparent"};
+  border-radius: ${({ isExpanded }) => (isExpanded ? "8px" : "0")};
+  transition: background-color 0.3s ease, border-radius 0.3s ease;
 `;
 
 const ProviderName = styled.span`
   font-size: 16px;
   font-weight: 500;
+  color: #ffffff;
 `;
 
 const ExpandIcon = styled.span<{ isExpanded: boolean }>`
@@ -27,15 +33,18 @@ const ExpandIcon = styled.span<{ isExpanded: boolean }>`
   transform: rotate(${({ isExpanded }) => (isExpanded ? "90deg" : "0deg")});
 `;
 
-const APIListContainer = styled.ul`
+const APIListContainer = styled.ul<{ isExpanded: boolean }>`
   list-style: none;
-  padding: 10px 20px;
+  padding: ${({ isExpanded }) => (isExpanded ? "10px 20px" : "0")};
   margin: 0;
+  max-height: ${({ isExpanded }) => (isExpanded ? "500px" : "0")};
+  overflow: auto;
+  transition: max-height 0.3s ease, padding 0.3s ease;
 `;
-
 const APIItem = styled.li`
   padding: 8px 0;
   cursor: pointer;
+  color: #ffffff;
   &:hover {
     color: #007bff;
     text-decoration: underline;
@@ -117,7 +126,7 @@ const ProviderAccordion: React.FC<ProviderAccordionProps> = React.memo(
             ) : error ? (
               <ErrorText>{error}</ErrorText>
             ) : apis.length > 0 ? (
-              <APIListContainer>
+              <APIListContainer isExpanded={isExpanded}>
                 {apis.map((apiKey) => (
                   <APIItem key={apiKey} onClick={() => handleAPIClick(apiKey)}>
                     {apiKey.split(":")[1]}

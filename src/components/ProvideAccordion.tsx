@@ -15,7 +15,6 @@ const AccordionHeader = styled.div<{ isExpanded: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   background-color: ${({ isExpanded }) =>
     isExpanded ? "#1e2a38" : "transparent"};
   border-radius: ${({ isExpanded }) => (isExpanded ? "8px" : "0")};
@@ -41,6 +40,7 @@ const APIListContainer = styled.ul<{ isExpanded: boolean }>`
   overflow: auto;
   transition: max-height 0.3s ease, padding 0.3s ease;
 `;
+
 const APIItem = styled.li`
   padding: 8px 0;
   cursor: pointer;
@@ -64,10 +64,27 @@ interface ProviderAccordionProps {
   provider: string;
 }
 
+interface API {
+  title: string;
+  providerName: string;
+  serviceName: string;
+}
+
+const mapApiResponse = (apiData: Record<string, any>): API[] => {
+    return Object.entries(apiData).map(([key, value]) => {
+      const [providerName, serviceName] = key.split(":");
+      return {
+        title: value.info.title,
+        providerName,
+        serviceName,
+      };
+    });
+  };
+
 const ProviderAccordion: React.FC<ProviderAccordionProps> = React.memo(
   ({ provider }) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
-    const [apis, setApis] = useState<string[]>([]);
+    const [apis, setApis] = useState<API[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -81,7 +98,7 @@ const ProviderAccordion: React.FC<ProviderAccordionProps> = React.memo(
         setIsLoading(true);
         getAPIsByProvider(provider)
           .then((apiData) => {
-            const apiList = Object.keys(apiData);
+            const apiList = mapApiResponse(apiData);
             setApis(apiList);
           })
           .catch((err) => {
@@ -95,13 +112,12 @@ const ProviderAccordion: React.FC<ProviderAccordionProps> = React.memo(
     }, [isExpanded, apis.length, provider, isLoading, error]);
 
     const handleAPIClick = useCallback(
-      (apiKey: string) => {
-        const [providerName, apiName] = apiKey.split(":");
-        navigate(`/api/${providerName}/${apiName}`);
+      (providerName: string, serviceName: string) => {
+        navigate(`/api/${providerName}/${serviceName}`);
       },
       [navigate]
     );
-
+    console.log("kjasbkasjbkjasc", apis);
     return (
       <AccordionContainer isExpanded={isExpanded}>
         <AccordionHeader
@@ -127,9 +143,12 @@ const ProviderAccordion: React.FC<ProviderAccordionProps> = React.memo(
               <ErrorText>{error}</ErrorText>
             ) : apis.length > 0 ? (
               <APIListContainer isExpanded={isExpanded}>
-                {apis.map((apiKey) => (
-                  <APIItem key={apiKey} onClick={() => handleAPIClick(apiKey)}>
-                    {apiKey.split(":")[1]}
+                {apis.map(({ title, providerName, serviceName }, index) => (
+                  <APIItem
+                    key={index}
+                    onClick={() => handleAPIClick(providerName, serviceName)}
+                  >
+                    {title}
                   </APIItem>
                 ))}
               </APIListContainer>

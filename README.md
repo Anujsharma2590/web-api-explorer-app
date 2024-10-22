@@ -44,6 +44,45 @@ Make sure you have the following installed:
    git clone https://github.com/Anujsharma2590/web-api-explorer-app.git
    cd web-api-explorer-app
 
+1. **Install Dependencies:**
+   ```bash
+   npm install
 
-## Project Structure
-web-api-explorer-app/ │ ├── public/ # Contains the index.html template ├── src/ # Contains source code │ ├── components/ # Reusable React components │ ├── pages/ # Pages like Home and APIDetailsPage │ ├── services/ # API service to fetch data from providers │ ├── types/ # TypeScript type definitions │ ├── App.tsx # Main app component │ └── index.tsx # Entry point for React app │ ├── .gitignore # Files and directories to ignore in Git ├── package.json # Project metadata and dependencies ├── webpack.config.js # Webpack configuration └── README.md # Documentation for the project
+### Running the Application
+
+ **To run the project locally on port 3000, use the following command:**
+   ```bash
+   npm start 
+
+This will start the webpack development server. Open your browser and go to: http://localhost:3000
+
+```
+### Technologies Used
+- **React:** Frontend UI framework
+- **React Router:** For routing between pages
+- **TypeScript:** Static type-checking
+- **styled-components:** Styling solution using component-level styles
+- **React Markdown + rehype-highlight:** Render and highlight markdown-based API descriptions
+- **Axios:** HTTP client for fetching data
+- **Webpack:** Module bundler for building the project
+
+---
+
+### Project Structure
+```
+web-api-explorer-app/
+│
+├── public/               # Contains the index.html template
+├── src/                  # Contains source code
+│   ├── components/       # Reusable React components
+│   ├── pages/            # Pages like Home and APIDetailsPage
+│   ├── services/         # API service to fetch data from providers
+│   ├── types/            # TypeScript type definitions
+│   ├── App.tsx           # Main app component
+│   └── index.tsx         # Entry point for React app
+│
+├── .gitignore            # Files and directories to ignore in Git
+├── package.json          # Project metadata and dependencies
+├── webpack.config.js     # Webpack configuration
+└── README.md             # Documentation for the project
+```

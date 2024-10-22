@@ -47,7 +47,6 @@ const Home: FC = () => {
     <>
       <MainContent isBlurred={isDrawerOpen}>
         <OpenButton onClick={handleOpenDrawer}>Explore web APIs</OpenButton>
-        {/* Add other main content here if needed */}
       </MainContent>
       <ProviderDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} />
     </>

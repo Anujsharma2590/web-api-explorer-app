@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { getAPIsByProvider, getProviders } from '../services/apiServices';
+import { getProviders } from '../services/apiServices';
+import ProviderAccordion from './ProvideAccordion';
+import useEscapeKey from '../hooks/useEscapeKey';
 
 
 const Overlay = styled.div<{ isOpen: boolean }>`
@@ -21,7 +23,7 @@ const Backdrop = styled.div`
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(1px);
   transition: opacity 0.3s ease-in-out;
   opacity: 1;
   cursor: pointer;
@@ -31,7 +33,7 @@ const Drawer = styled.div`
   position: absolute;
   top: 0;
   right: 0;
-  width: 500px;
+  width: 500px; 
   height: 100%;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease-in-out;
@@ -41,71 +43,28 @@ const Drawer = styled.div`
 
 const DrawerHeader = styled.div`
   padding: 20px;
-  background-color: #3f5f7a;
+  background-color: #007bff;
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 0;
 `;
 
 const DrawerContent = styled.div`
   padding: 20px;
-  background-color: #3f5f7a;
 `;
 
 const CloseButton = styled.button`
   background: none;
   border: none;
   color: white;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
 `;
 
 const ProviderListContainer = styled.div`
   display: flex;
   flex-direction: column;
-`;
-
-const ProviderItem = styled.div`
-  border-bottom: 1px solid #ddd;
-`;
-
-const ProviderHeader = styled.div<{ isExpanded: boolean }>`
-  padding: 10px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: ${({ isExpanded }) => (isExpanded ? '#eaeaea' : 'transparent')};
-  &:hover {
-    background-color: #eaeaea;
-  }
-`;
-
-const ProviderName = styled.span`
-  font-size: 16px;
-  font-weight: 400;
-`;
-
-const ExpandIcon = styled.span<{ isExpanded: boolean }>`
-  transition: transform 0.3s ease;
-  transform: rotate(${({ isExpanded }) => (isExpanded ? '90deg' : '0deg')});
-`;
-
-const APIListContainer = styled.ul`
-  list-style: none;
-  padding: 10px 20px;
-  margin: 0;
-`;
-
-const APIItem = styled.li`
-  padding: 8px 0;
-  cursor: pointer;
-  &:hover {
-    color: #007bff;
-    text-decoration: underline;
-  }
 `;
 
 const LoadingText = styled.p`
@@ -123,142 +82,47 @@ interface ProviderDrawerProps {
 }
 
 const ProviderDrawer: React.FC<ProviderDrawerProps> = ({ isOpen, onClose }) => {
-  const [providers, setProviders] = useState<string[]>([]);
-  const [apisByProvider, setApisByProvider] = useState<Record<string, string[]>>({});
-  const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
-  const [loadingProviders, setLoadingProviders] = useState<Set<string>>(new Set());
-  const [errorProviders, setErrorProviders] = useState<Record<string, string>>({});
-  const navigate = useNavigate();
+  const [providers, setProviders] = React.useState<string[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  useEscapeKey(onClose, isOpen);
 
   useEffect(() => {
     if (isOpen) {
+      setIsLoading(true);
       getProviders()
-        .then(setProviders)
-        .catch((error: any) => console.error('Error fetching providers:', error));
+        .then((data) => setProviders(data))
+        .catch((err) => {
+          console.error('Error fetching providers:', err);
+          setError('Failed to load providers. Please try again later.');
+        })
+        .finally(() => setIsLoading(false));
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEsc);
-    } else {
-      document.removeEventListener('keydown', handleEsc);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEsc);
-    };
-  }, [isOpen, onClose]);
-
-  const toggleProvider = async (provider: string) => {
-    const isExpanded = expandedProviders.has(provider);
-    const newExpandedProviders = new Set(expandedProviders);
-
-    if (isExpanded) {
-      newExpandedProviders.delete(provider);
-      setExpandedProviders(newExpandedProviders);
-    } else {
-      newExpandedProviders.add(provider);
-      setExpandedProviders(newExpandedProviders);
-
-      // If APIs for this provider are not yet fetched, fetch them
-      if (!apisByProvider[provider] && !loadingProviders.has(provider)) {
-        const newLoadingProviders = new Set(loadingProviders);
-        newLoadingProviders.add(provider);
-        setLoadingProviders(newLoadingProviders);
-
-        try {
-          const apiData = await getAPIsByProvider(provider);
-          const apiList = Object.keys(apiData);
-          setApisByProvider((prev) => ({ ...prev, [provider]: apiList }));
-        } catch (error: any) {
-          console.error(`Error fetching APIs for provider ${provider}:`, error);
-          setErrorProviders((prev) => ({
-            ...prev,
-            [provider]: 'Failed to load APIs. Please try again later.',
-          }));
-        } finally {
-          const updatedLoadingProviders = new Set(loadingProviders);
-          updatedLoadingProviders.delete(provider);
-          setLoadingProviders(updatedLoadingProviders);
-        }
-      }
-    }
-  };
-
-  const handleAPIClick = (provider: string, apiName: string) => {
-    onClose();
-    navigate(`/api/${provider}/${apiName}`);
-  };
 
   return (
     <Overlay isOpen={isOpen}>
       <Backdrop onClick={onClose} />
       <Drawer>
         <DrawerHeader>
-          <h3>Select Provider</h3>
-          <CloseButton onClick={onClose}>&times;</CloseButton>
+          <h3>API Providers</h3>
+          <CloseButton onClick={onClose} aria-label="Close Drawer">
+            &times;
+          </CloseButton>
         </DrawerHeader>
         <DrawerContent>
-          <ProviderListContainer>
-            {providers.map((provider) => {
-              const isExpanded = expandedProviders.has(provider);
-              const isLoading = loadingProviders.has(provider);
-              const errorMessage = errorProviders[provider];
-              const apis = apisByProvider[provider];
-
-              return (
-                <ProviderItem key={provider}>
-                  <ProviderHeader
-                    onClick={() => toggleProvider(provider)}
-                    isExpanded={isExpanded}
-                    aria-expanded={isExpanded}
-                    role="button"
-                    tabIndex={0}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        toggleProvider(provider);
-                      }
-                    }}
-                  >
-                    <ProviderName>{provider}</ProviderName>
-                    <ExpandIcon isExpanded={isExpanded}>▶</ExpandIcon>
-                  </ProviderHeader>
-                  {isExpanded && (
-                    <div>
-                      {isLoading ? (
-                        <LoadingText>Loading APIs...</LoadingText>
-                      ) : errorMessage ? (
-                        <ErrorText>{errorMessage}</ErrorText>
-                      ) : apis && apis.length > 0 ? (
-                        <APIListContainer>
-                          {apis.map((apiKey) => {
-                            const [providerName, apiName] = apiKey.split(':');
-                            return (
-                              <APIItem
-                                key={apiKey}
-                                onClick={() => handleAPIClick(providerName, apiName)}
-                              >
-                                {apiName}
-                              </APIItem>
-                            );
-                          })}
-                        </APIListContainer>
-                      ) : (
-                        <LoadingText>No APIs available.</LoadingText>
-                      )}
-                    </div>
-                  )}
-                </ProviderItem>
-              );
-            })}
-          </ProviderListContainer>
+          {isLoading ? (
+            <LoadingText>Loading providers...</LoadingText>
+          ) : error ? (
+            <ErrorText>{error}</ErrorText>
+          ) : (
+            <ProviderListContainer>
+              {providers.map((provider) => (
+                <ProviderAccordion key={provider} provider={provider} />
+              ))}
+            </ProviderListContainer>
+          )}
         </DrawerContent>
       </Drawer>
     </Overlay>

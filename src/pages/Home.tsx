@@ -11,7 +11,7 @@ const MainContent = styled.div<{ isBlurred: boolean }>`
   ${({ isBlurred }) =>
     isBlurred &&
     css`
-      filter: blur(5px);
+      filter: blur(1px);
     `}
 `;
 

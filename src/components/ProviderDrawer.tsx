@@ -1,18 +1,23 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import { getProviders } from '../services/apiServices';
-import ProviderAccordion from './ProvideAccordion';
-import useEscapeKey from '../hooks/useEscapeKey';
+// src/components/Drawer/ProviderDrawer.tsx
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import { getProviders } from "../services/apiServices";
 
+import useEscapeKey from "../hooks/useEscapeKey";
+import ProviderAccordion from "./ProvideAccordion";
 
 const Overlay = styled.div<{ isOpen: boolean }>`
-  display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  backdrop-filter: blur(1px);
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: ${({ isOpen }) => (isOpen ? "1" : "0")};
+  visibility: ${({ isOpen }) => (isOpen ? "visible" : "hidden")};
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
   z-index: 1000;
 `;
 
@@ -22,36 +27,38 @@ const Backdrop = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(1px);
   transition: opacity 0.3s ease-in-out;
   opacity: 1;
   cursor: pointer;
 `;
 
-const Drawer = styled.div`
-  position: absolute;
+const Drawer = styled.div<{ isOpen: boolean }>`
+  position: fixed;
   top: 0;
   right: 0;
-  width: 500px; 
+  width: 500px;
   height: 100%;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+  transform: ${({ isOpen }) => (isOpen ? "translateX(0)" : "translateX(100%)")};
   transition: transform 0.3s ease-in-out;
-  transform: translateX(0);
   overflow-y: auto;
+  z-index: 1001;
+    background-color: #3f5f7a;
 `;
 
 const DrawerHeader = styled.div`
   padding: 20px;
-  background-color: #007bff;
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: #3f5f7a;
 `;
 
 const DrawerContent = styled.div`
   padding: 20px;
+  background-color: #3f5f7a;
 `;
 
 const CloseButton = styled.button`
@@ -82,9 +89,10 @@ interface ProviderDrawerProps {
 }
 
 const ProviderDrawer: React.FC<ProviderDrawerProps> = ({ isOpen, onClose }) => {
-  const [providers, setProviders] = React.useState<string[]>([]);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [providers, setProviders] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEscapeKey(onClose, isOpen);
 
@@ -94,8 +102,8 @@ const ProviderDrawer: React.FC<ProviderDrawerProps> = ({ isOpen, onClose }) => {
       getProviders()
         .then((data) => setProviders(data))
         .catch((err) => {
-          console.error('Error fetching providers:', err);
-          setError('Failed to load providers. Please try again later.');
+          console.error("Error fetching providers:", err);
+          setError("Failed to load providers. Please try again later.");
         })
         .finally(() => setIsLoading(false));
     }
@@ -104,7 +112,7 @@ const ProviderDrawer: React.FC<ProviderDrawerProps> = ({ isOpen, onClose }) => {
   return (
     <Overlay isOpen={isOpen}>
       <Backdrop onClick={onClose} />
-      <Drawer>
+      <Drawer isOpen={isOpen}>
         <DrawerHeader>
           <h3>API Providers</h3>
           <CloseButton onClick={onClose} aria-label="Close Drawer">

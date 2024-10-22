@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import styled, {css} from "styled-components";
+import styled, { css } from "styled-components";
 import ProviderDrawer from "../components/ProviderDrawer";
 
 const MainContent = styled.div<{ isBlurred: boolean }>`

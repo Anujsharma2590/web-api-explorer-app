@@ -111,9 +111,9 @@ const ExploreButton = styled.button`
 `;
 
 const APIDetailsPage: React.FC = () => {
-  const { provider } = useParams<{
+  const { provider, apiName } = useParams<{
     provider: string;
-
+    apiName: string;
   }>();
   const [apiDetails, setApiDetails] = useState<APIItem | null>(null);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -134,7 +134,7 @@ const APIDetailsPage: React.FC = () => {
     setDrawerOpen(false);
   };
 
-  const currentAPI = apiDetails ? apiDetails[`${provider}`] : null;
+  const currentAPI = apiDetails ? apiDetails[`${provider}:${apiName}`] : null;
 
   if (!currentAPI) {
     return <Container>Loading...</Container>;

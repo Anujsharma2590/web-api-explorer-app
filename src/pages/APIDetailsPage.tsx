@@ -1,4 +1,3 @@
-// src/pages/APIDetailsPage.tsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -7,19 +6,84 @@ import ProviderDrawer from "../components/ProviderDrawer";
 import { getAPIsByProvider } from "../services/apiServices";
 
 const Container = styled.div`
-  padding: 20px;
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  color: white;
+`;
+
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const Logo = styled.img`
+  width: 100px;
+  height: 100px;
+  margin-right: 20px;
+  border-radius: 8px;
+  background-color: white;
+`;
+
+const Title = styled.h1`
+  font-size: 28px;
+  margin: 0;
+`;
+
+const Description = styled.p`
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+`;
+
+const InfoSection = styled.div`
+  margin-bottom: 20px;
+`;
+
+const InfoLabel = styled.strong`
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+`;
+
+const Link = styled.a`
+  color: #00bfff;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const BackButton = styled.button`
   margin-bottom: 20px;
-  padding: 8px 16px;
+  padding: 10px 20px;
+  background-color: #00bfff;
+  border: none;
+  border-radius: 5px;
+  color: white;
   cursor: pointer;
+  font-size: 16px;
+
+  &:hover {
+    background-color: #008fcc;
+  }
 `;
 
-const APIDetailsContainer = styled.div`
-  border: 1px solid #ddd;
-  padding: 20px;
+const ExploreButton = styled.button`
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #00bfff;
+  border: none;
   border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+
+  &:hover {
+    background-color: #008fcc;
+  }
 `;
 
 const APIDetailsPage: React.FC = () => {
@@ -38,7 +102,6 @@ const APIDetailsPage: React.FC = () => {
     }
   }, [provider]);
 
-
   const handleOpenDrawer = () => {
     setDrawerOpen(true);
   };
@@ -55,32 +118,55 @@ const APIDetailsPage: React.FC = () => {
 
   return (
     <Container>
-      <BackButton onClick={handleOpenDrawer}>Back to Providers</BackButton>
       <ProviderDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} />
-      <APIDetailsContainer>
-        <h2>{currentAPI.info.title}</h2>
-        <p dangerouslySetInnerHTML={{ __html: currentAPI.info.description }} />
+      <Header>
+        <Logo src={currentAPI.info["x-logo"].url} alt={currentAPI.info.title} />
+        <Title>{currentAPI.info.title}</Title>
+      </Header>
+      <Description>{currentAPI.info.description}</Description>
+
+      <InfoSection>
+        <InfoLabel>Version:</InfoLabel>
+        <p>{currentAPI.info.version}</p>
+      </InfoSection>
+
+      <InfoSection>
+        <InfoLabel>Swagger:</InfoLabel>
+        <Link
+          href={currentAPI.swaggerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {currentAPI.swaggerUrl}
+        </Link>
+      </InfoSection>
+
+      <InfoSection>
+        <InfoLabel>Contact:</InfoLabel>
         <p>
-          <strong>Version:</strong> {currentAPI.info.version}
+          <strong>Name:</strong> {currentAPI.info.contact.name}
         </p>
         <p>
-          <strong>Terms of Service:</strong>{" "}
-          <a
-            href={currentAPI.info.termsOfService}
+          <strong>Email:</strong>{" "}
+          <Link href={`mailto:${currentAPI.info.contact.email}`}>
+            {currentAPI.info.contact.email}
+          </Link>
+        </p>
+        <p>
+          <strong>Website:</strong>{" "}
+          <Link
+            href={currentAPI.info.contact.url}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {currentAPI.info.termsOfService}
-          </a>
+            {currentAPI.info.contact.url}
+          </Link>
         </p>
-        <p>
-          <strong>Contact:</strong> {currentAPI.info.contact.name} (
-          <a href={`mailto:${currentAPI.info.contact.email}`}>
-            {currentAPI.info.contact.email}
-          </a>
-          )
-        </p>
-      </APIDetailsContainer>
+      </InfoSection>
+
+      <ExploreButton onClick={handleOpenDrawer}>
+        Explore more APIs
+      </ExploreButton>
     </Container>
   );
 };

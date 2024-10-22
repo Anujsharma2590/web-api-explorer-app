@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
 import { APIItem } from "../types/apiTypes";
 import ProviderDrawer from "../components/ProviderDrawer";
 import { getAPIsByProvider } from "../services/apiServices";
@@ -31,10 +33,32 @@ const Title = styled.h1`
   margin: 0;
 `;
 
-const Description = styled.p`
+const Description = styled.div`
   font-size: 16px;
   line-height: 1.5;
   margin-bottom: 20px;
+
+  code {
+    background-color: #1e2a38;
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+
+  pre {
+    background-color: #1e2a38;
+    padding: 10px;
+    border-radius: 5px;
+    overflow: auto;
+  }
+
+  a {
+    color: #00bfff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 `;
 
 const InfoSection = styled.div`
@@ -87,9 +111,9 @@ const ExploreButton = styled.button`
 `;
 
 const APIDetailsPage: React.FC = () => {
-  const { provider, apiName } = useParams<{
+  const { provider } = useParams<{
     provider: string;
-    apiName: string;
+
   }>();
   const [apiDetails, setApiDetails] = useState<APIItem | null>(null);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -110,12 +134,13 @@ const APIDetailsPage: React.FC = () => {
     setDrawerOpen(false);
   };
 
-  const currentAPI = apiDetails ? apiDetails[`${provider}:${apiName}`] : null;
+  const currentAPI = apiDetails ? apiDetails[`${provider}`] : null;
 
   if (!currentAPI) {
     return <Container>Loading...</Container>;
   }
 
+  console.log("akjscbakjscbakjsc", currentAPI)
   return (
     <Container>
       <ProviderDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} />
@@ -123,12 +148,12 @@ const APIDetailsPage: React.FC = () => {
         <Logo src={currentAPI.info["x-logo"].url} alt={currentAPI.info.title} />
         <Title>{currentAPI.info.title}</Title>
       </Header>
-      <Description>{currentAPI.info.description}</Description>
 
-      <InfoSection>
-        <InfoLabel>Version:</InfoLabel>
-        <p>{currentAPI.info.version}</p>
-      </InfoSection>
+      <Description>
+        <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+          {currentAPI.info.description}
+        </ReactMarkdown>
+      </Description>
 
       <InfoSection>
         <InfoLabel>Swagger:</InfoLabel>

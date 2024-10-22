@@ -80,21 +80,6 @@ const Link = styled.a`
   }
 `;
 
-const BackButton = styled.button`
-  margin-bottom: 20px;
-  padding: 10px 20px;
-  background-color: #00bfff;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-
-  &:hover {
-    background-color: #008fcc;
-  }
-`;
-
 const ExploreButton = styled.button`
   margin-top: 20px;
   padding: 10px 20px;
@@ -113,7 +98,7 @@ const ExploreButton = styled.button`
 const APIDetailsPage: React.FC = () => {
   const { provider, apiName } = useParams<{
     provider: string;
-    apiName: string;
+    apiName: string | undefined;
   }>();
   const [apiDetails, setApiDetails] = useState<APIItem | null>(null);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -121,7 +106,9 @@ const APIDetailsPage: React.FC = () => {
   useEffect(() => {
     if (provider) {
       getAPIsByProvider(provider)
-        .then((data) => setApiDetails(data))
+        .then((data) => {
+          setApiDetails(data);
+        })
         .catch((error) => console.error(error));
     }
   }, [provider]);
@@ -134,13 +121,16 @@ const APIDetailsPage: React.FC = () => {
     setDrawerOpen(false);
   };
 
-  const currentAPI = apiDetails ? apiDetails[`${provider}:${apiName}`] : null;
+  const currentAPI = apiDetails
+    ? apiName
+      ? apiDetails[`${provider}:${apiName}`]
+      : apiDetails[provider ?? ""]
+    : null;
 
   if (!currentAPI) {
     return <Container>Loading...</Container>;
   }
 
-  console.log("akjscbakjscbakjsc", currentAPI)
   return (
     <Container>
       <ProviderDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} />
@@ -166,28 +156,32 @@ const APIDetailsPage: React.FC = () => {
         </Link>
       </InfoSection>
 
-      <InfoSection>
-        <InfoLabel>Contact:</InfoLabel>
-        <p>
-          <strong>Name:</strong> {currentAPI.info.contact.name}
-        </p>
-        <p>
-          <strong>Email:</strong>{" "}
-          <Link href={`mailto:${currentAPI.info.contact.email}`}>
-            {currentAPI.info.contact.email}
-          </Link>
-        </p>
-        <p>
-          <strong>Website:</strong>{" "}
-          <Link
-            href={currentAPI.info.contact.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {currentAPI.info.contact.url}
-          </Link>
-        </p>
-      </InfoSection>
+      {currentAPI.info?.contact ? (
+        <InfoSection>
+          <InfoLabel>Contact:</InfoLabel>
+          <p>
+            <strong>Name:</strong> {currentAPI?.info?.contact?.name ?? "-"}
+          </p>
+          <p>
+            <strong>Email:</strong>{" "}
+            <Link href={`mailto:${currentAPI?.info?.contact?.email ?? "-"}}`}>
+              {currentAPI.info.contact.email}
+            </Link>
+          </p>
+          <p>
+            <strong>Website:</strong>{" "}
+            <Link
+              href={currentAPI.info.contact.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {currentAPI.info.contact.url}
+            </Link>
+          </p>
+        </InfoSection>
+      ) : (
+        <></>
+      )}
 
       <ExploreButton onClick={handleOpenDrawer}>
         Explore more APIs

@@ -7,6 +7,7 @@ const App: React.FC = () => (
   <Router>
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/api/:provider" element={<APIDetailsPage />} />
       <Route path="/api/:provider/:apiName" element={<APIDetailsPage />} />
     </Routes>
   </Router>

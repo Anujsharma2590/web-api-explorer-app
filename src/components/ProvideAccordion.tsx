@@ -71,15 +71,15 @@ interface API {
 }
 
 const mapApiResponse = (apiData: Record<string, any>): API[] => {
-    return Object.entries(apiData).map(([key, value]) => {
-      const [providerName, serviceName] = key.split(":");
-      return {
-        title: value.info.title,
-        providerName,
-        serviceName,
-      };
-    });
-  };
+  return Object.entries(apiData).map(([key, value]) => {
+    const [providerName, serviceName] = key.split(":");
+    return {
+      title: value.info.title,
+      providerName,
+      serviceName,
+    };
+  });
+};
 
 const ProviderAccordion: React.FC<ProviderAccordionProps> = React.memo(
   ({ provider }) => {
@@ -112,12 +112,16 @@ const ProviderAccordion: React.FC<ProviderAccordionProps> = React.memo(
     }, [isExpanded, apis.length, provider, isLoading, error]);
 
     const handleAPIClick = useCallback(
-      (providerName: string, serviceName: string) => {
-        navigate(`/api/${providerName}/${serviceName}`);
+      (providerName: string, serviceName?: string) => {
+        if (providerName && serviceName) {
+          navigate(`/api/${providerName}/${serviceName}`);
+        } else {
+          navigate(`/api/${providerName}`);
+        }
       },
       [navigate]
     );
-    console.log("kjasbkasjbkjasc", apis);
+
     return (
       <AccordionContainer isExpanded={isExpanded}>
         <AccordionHeader

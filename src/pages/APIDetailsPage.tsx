@@ -38,6 +38,7 @@ const APIDetailsPage: React.FC = () => {
     }
   }, [provider]);
 
+
   const handleOpenDrawer = () => {
     setDrawerOpen(true);
   };
@@ -78,36 +79,6 @@ const APIDetailsPage: React.FC = () => {
             {currentAPI.info.contact.email}
           </a>
           )
-        </p>
-        <p>
-          <strong>License:</strong>{" "}
-          <a
-            href={currentAPI.info.license.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {currentAPI.info.license.name}
-          </a>
-        </p>
-        <p>
-          <strong>Swagger URL:</strong>{" "}
-          <a
-            href={currentAPI.swaggerUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {currentAPI.swaggerUrl}
-          </a>
-        </p>
-        <p>
-          <strong>External Docs:</strong>{" "}
-          <a
-            href={currentAPI.externalDocs.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {currentAPI.externalDocs.description}
-          </a>
         </p>
       </APIDetailsContainer>
     </Container>

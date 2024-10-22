@@ -1,35 +1,50 @@
-const prod = process.env.NODE_ENV === 'production';
-
+const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const prod = process.env.NODE_ENV === 'production';
+
 module.exports = {
-  mode: prod ? 'production' : 'development',
-  entry: './src/index.tsx',
+  mode: prod ? 'production' : 'development', 
+  entry: './src/index.tsx', 
   output: {
-    path: __dirname + '/dist/',
+    path: path.resolve(__dirname, 'dist'), 
+    filename: 'bundle.js', 
+    publicPath: '/'
   },
   module: {
     rules: [
       {
-        test: /\.(ts|tsx)$/,
+        test: /\.(ts|tsx)$/, 
         exclude: /node_modules/,
         resolve: {
-          extensions: ['.ts', '.tsx', '.js', '.json'],
+          extensions: ['.ts', '.tsx', '.js', '.json'], 
         },
-        use: 'ts-loader',
+        use: 'ts-loader', 
       },
       {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        test: /\.css$/, 
+        use: [MiniCssExtractPlugin.loader, 'css-loader'], 
       },
-    ]
+    ],
   },
-  devtool: prod ? undefined : 'source-map',
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js'], 
+  },
+  devtool: prod ? false : 'source-map', 
+  devServer: {
+    static: {
+      directory: path.resolve(__dirname, 'dist'), 
+    },
+    historyApiFallback: true, 
+  },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'index.html',
+      template: './public/index.html', 
+      filename: 'index.html', 
     }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[name].[contenthash].css', 
+    }),
   ],
 };
